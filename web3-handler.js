@@ -1,0 +1,481 @@
+let provider, signer, contract, userAddress;
+
+// --- CONFIGURATION ---
+const CONTRACT_ADDRESS = "0xA1a466BaC633be0ADB8Caa22638Bd30d2bdAe454"; 
+const USDT_TOKEN_ADDRESS = "0x3b66b1e08f55af26c8ea14a73da64b6bc8d799de"; // BSC USDT
+const TESTNET_CHAIN_ID = 97; 
+const REGISTRATION_FEE = "15";
+
+
+// --- ABI (Exactly same + 2 history functions + 3 matrix functions) ---
+const CONTRACT_ABI = [
+    "function register(address _ref) external",
+    "function withdraw(uint256 _amt) external",
+    "function claimReward() external",
+    "function isRegistered(address) view returns (bool)",
+    "function referrer(address) view returns (address)",
+    "function userStats(address, uint256) view returns (uint256)", 
+    "function userIncomes(address, uint256) view returns (uint256)", 
+    "function rewardFund() view returns (uint256)",
+    "function getUserBasicStats(address _user) external view returns (uint256 team, uint256 directs, uint256 totalEarned)",
+    "function getUserAccountStats(address _user) external view returns (string memory currentClub, uint256 availableBalance, uint256 withdrawn)",
+    "function getMatrixIncomeReport(address _user) external view returns (uint256 dMagic, uint256 c1, uint256 c2, uint256 c3, uint256 c4)",
+    "function getAdvancedIncomeReport(address _user) external view returns (uint256 g1, uint256 g2, uint256 g3, uint256 rwd)",
+    "function getUserHistory(address _user) external view returns (tuple(string txType, uint256 amount, string detail, uint256 timestamp)[])",
+    "function getLevelTeam(address _account, uint256 _level) external view returns (address[] memory)",
+    // NEW MATRIX SYNC FUNCTIONS
+    "function getMagicPoolCounts() external view returns (uint256[6])",
+    "function getClubCounts() external view returns (uint256[4])",
+    "function getGTCounts() external view returns (uint256[3])",
+    "function getGlobalLevelTracker(address _user) external view returns (tuple(string stageName, uint256 currentGlobalCount, uint256 userIndex, uint256 requiredForUser, uint256 progress, bool isCompleted)[])",
+];
+
+const ERC20_ABI = ["function approve(address spender, uint256 amount) public returns (bool)", "function allowance(address owner, address spender) public view returns (uint256)"];
+
+const calculateGlobalROI = () => 0.90;
+
+function checkReferralURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refAddr = urlParams.get('ref');
+    const refField = document.getElementById('reg-referrer');
+    if (refAddr && ethers.utils.isAddress(refAddr) && refField) {
+        refField.value = refAddr;
+    }
+}
+
+async function init() {
+    checkReferralURL();
+    if (window.ethereum) {
+        try {
+            provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            window.signer = provider.getSigner();
+            signer = window.signer;
+            window.contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+            contract = window.contract;
+
+            if (accounts && accounts.length > 0) {
+                if (localStorage.getItem('manualLogout') !== 'true') {
+                    await setupApp(accounts[0]);
+                } else {
+                    updateNavbar(accounts[0]);
+                }
+            }
+        } catch (error) { console.error("Init Error", error); }
+    } else { alert("Wallet not detected!"); }
+}
+
+window.checkWalletSilently = async function() {
+    if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) return accounts[0];
+    }
+    return null;
+};
+
+// --- CORE LOGIC ---
+
+window.handleRegister = async function() {
+    const regBtn = document.getElementById('register-btn');
+    const refInput = document.getElementById('reg-referrer');
+    let referrer = refInput ? refInput.value.trim() : "";
+    if (!referrer || !ethers.utils.isAddress(referrer)) {
+        referrer = "0x0000000000000000000000000000000000000000";
+    }
+
+    try {
+        const network = await provider.getNetwork();
+        if (network.chainId !== 97) {
+            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x61' }] });
+        }
+
+        if(regBtn) { regBtn.disabled = true; regBtn.innerText = "CHECKING USDT..."; }
+
+        const usdtContract = new ethers.Contract(USDT_TOKEN_ADDRESS, ERC20_ABI, signer);
+        const feeWei = ethers.utils.parseUnits(REGISTRATION_FEE, 18);
+        const userAddr = await signer.getAddress();
+        const allowance = await usdtContract.allowance(userAddr, CONTRACT_ADDRESS);
+        
+        if (allowance.lt(feeWei)) {
+            if(regBtn) regBtn.innerText = "APPROVING USDT...";
+            const appTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
+            await appTx.wait();
+        }
+
+        if(regBtn) regBtn.innerText = "CONFIRMING...";
+        const tx = await contract.register(referrer, { gasLimit: 800000 });
+        await tx.wait();
+
+        alert("Account Activated Successfully!");
+        window.location.href = "index1.html";
+    } catch (err) {
+        alert("Registration Error: " + (err.reason || err.message));
+        if(regBtn) { regBtn.disabled = false; regBtn.innerText = "REGISTER NOW"; }
+    }
+};
+
+window.handleWithdraw = async function() {
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const originalText = withdrawBtn.innerText;
+    try {
+        withdrawBtn.disabled = true;
+        withdrawBtn.innerText = "SIGNING...";
+        const userAddr = await signer.getAddress();
+        const accountStats = await contract.getUserAccountStats(userAddr);
+        const available = accountStats.availableBalance;
+
+        if(available.eq(0)) {
+            alert("Nothing to withdraw");
+            withdrawBtn.disabled = false;
+            withdrawBtn.innerText = originalText;
+            return;
+        }
+
+        const tx = await contract.withdraw(available);
+        withdrawBtn.innerText = "WITHDRAWING...";
+        await tx.wait();
+        alert("Withdrawal successful!");
+        location.reload(); 
+    } catch (err) {
+        alert("Withdraw failed: " + (err.reason || err.message));
+        withdrawBtn.innerText = originalText;
+        withdrawBtn.disabled = false;
+    }
+};
+
+window.handleClaimRewards = async function() {
+    const claimBtn = document.getElementById('claimBtn');
+    const originalText = claimBtn.innerText;
+    try {
+        claimBtn.disabled = true;
+        claimBtn.innerText = "SIGNING...";
+        const tx = await contract.claimReward(); 
+        claimBtn.innerText = "CLAIMING...";
+        await tx.wait();
+        alert("Rewards Claimed Successfully!");
+        location.reload(); 
+    } catch (err) {
+        alert("Claim failed: " + (err.reason || err.message));
+        claimBtn.innerText = originalText;
+        claimBtn.disabled = false;
+    }
+};
+
+window.handleLogin = async function() {
+    try {
+        if (!window.ethereum) return alert("Wallet not detected!");
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const userAddress = accounts[0];
+        const registered = await contract.isRegistered(userAddress);
+        if (registered) {
+            localStorage.setItem('userAddress', userAddress);
+            localStorage.removeItem('manualLogout');
+            window.location.href = "index1.html";
+        } else {
+            alert("Not registered!");
+            window.location.href = "register.html";
+        }
+    } catch (err) { alert("Login failed"); }
+};
+
+window.handleLogout = function() {
+    if (confirm("Disconnect and Logout?")) {
+        localStorage.clear(); 
+        localStorage.setItem('manualLogout', 'true');
+        window.location.href = "index.html"; 
+    }
+}
+
+// --- SETUP APP ---
+async function setupApp(address) {
+    try {
+        window.userAddress = address; // Global variable set karein
+        if (!window.contract) {
+            window.contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        }
+        
+        const isRegistered = await window.contract.isRegistered(address);
+        const path = window.location.pathname;
+        window.userData = { isRegistered };
+
+        if (!isRegistered && !path.includes('register.html') && !path.includes('login.html')) {
+            window.location.href = "register.html";
+            return;
+        }
+        
+        updateNavbar(address);
+        
+        // --- Page Specific Data Loading ---
+        if (path.includes('index1.html')) {
+            setTimeout(() => fetchAllData(address), 300);
+            setTimeout(() => updateLiveMatrixStatus(), 500); 
+        }
+        if (path.includes('history.html')) {
+            // Yahan 500ms ka delay contract initialization ke liye safe hai
+            setTimeout(() => fetchUserHistory(address, 'all'), 500);
+        }
+        if (path.includes('leadership.html')) {
+            setTimeout(() => fetchLeadershipData(address), 300);
+        }
+        if (path.includes('team.html')) {
+            setTimeout(() => fetchLevelTeam(address), 300);
+        }
+    } catch (err) { console.error("Setup Error", err); }
+}
+async function fetchAllData(address) {
+    try {
+        const activeContract = window.contract || contract;
+        // Check if contract exists before calling
+        if(!activeContract) return;
+
+        const [basic, account, matrix, advanced, fund, isRegistered] = await Promise.all([
+            activeContract.getUserBasicStats(address).catch(() => [[0],[0],[0]]),
+            activeContract.getUserAccountStats(address).catch(() => ["", 0, 0]),
+            activeContract.getMatrixIncomeReport(address).catch(() => [0,0,0,0,0]),
+            activeContract.getAdvancedIncomeReport(address).catch(() => [0,0,0,0]),
+            activeContract.rewardFund().catch(() => 0),
+            activeContract.isRegistered(address).catch(() => false)
+        ]);
+
+        const shortAddr = address.substring(0, 6) + "..." + address.substring(38);
+        updateText('user-address', shortAddr);
+        updateText('full-address', address);
+        updateText('username-display', "ACTIVE USER"); 
+        updateText('rank-display', account[0] || "NO RANK");
+
+        updateText('team-count', basic[0].toString());
+        updateText('directs-count', basic[1].toString());
+        updateText('total-earned', format(basic[2]));
+        updateText('available-balance', format(account[1])); 
+        updateText('withdrawable', format(account[1])); 
+        updateText('total-withdrawn', format(account[2])); 
+        updateText('reward-fund', format(fund));
+
+        updateText('income-magic', format(matrix[0]));
+        updateText('income-club1', format(matrix[1]));
+        updateText('income-club2', format(matrix[2]));
+        updateText('income-club3', format(matrix[3]));
+        updateText('income-club4', format(matrix[4]));
+        
+        updateText('income-gt1', format(advanced[0]));
+        updateText('income-gt2', format(advanced[1]));
+        updateText('income-gt3', format(advanced[2]));
+        updateText('income-reward', format(advanced[3]));
+
+        const registerPath = window.location.pathname.includes('index1.html') ? window.location.pathname.replace('index1.html', 'register.html') : '/register.html';
+        const baseUrl = window.location.origin + registerPath;
+        const refField = document.getElementById('refURL');
+        if(refField) refField.value = `${baseUrl}?ref=${address}`;
+
+        const statusText = document.getElementById('main-status-text');
+        if(statusText) {
+            statusText.innerText = "CONNECTED";
+            statusText.className = "text-xs font-black orbitron text-green-500";
+        }
+    } catch (err) { console.error("Data Sync Error:", err); }
+}
+
+async function fetchLeadershipData(address) {
+    try {
+        const activeContract = window.contract || contract;
+        const directs = await activeContract.userStats(address, 0);
+        const team = await activeContract.userStats(address, 1);
+        const totalClaimed = await activeContract.userStats(address, 2);
+        const account = await activeContract.getUserAccountStats(address);
+
+        updateText('current-team-count', team.toString());
+        updateText('directs-count', directs.toString());
+        updateText('rank-reward-claimed', format(totalClaimed));
+       updateText('available-balance-leader', format(account[1])); 
+        updateText('current-rank-display', account[0]); 
+    } catch (err) { console.error("Leadership Error:", err); }
+}
+
+async function fetchUserHistory(address, category = 'all') {
+    try {
+        const container = document.getElementById('history-container');
+        if (!container) return;
+
+        // Loading state (optional but looks good)
+        container.innerHTML = `<div class="text-center py-20 opacity-30 animate-pulse font-bold orbitron text-[10px]">SYNCING WITH BLOCKCHAIN...</div>`;
+
+        const history = await window.contract.getUserHistory(address);
+        
+        if (!history || history.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 opacity-30 italic font-bold orbitron text-[10px]">NO TRANSACTIONS FOUND</div>`;
+            return;
+        }
+
+        // --- SAFE FILTERING ---
+        const filtered = [...history].filter(tx => {
+            if (category === 'all') return true;
+            // Convert to string safely to avoid .toLowerCase() errors
+            const typeStr = String(tx.txType || "").toLowerCase();
+            return typeStr.includes(category.toLowerCase());
+        }).reverse();
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 opacity-30 italic font-bold orbitron text-[10px]">NO ${category.toUpperCase()} FOUND</div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(tx => {
+            const typeRaw = String(tx.txType || "Other");
+            const type = typeRaw.toLowerCase();
+            const amount = parseFloat(ethers.utils.formatEther(tx.amount)).toFixed(2);
+            const date = new Date(tx.timestamp.toNumber() * 1000).toLocaleDateString();
+            const time = new Date(tx.timestamp.toNumber() * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            
+            let icon = 'arrow-right-circle';
+            let color = 'text-yellow-500';
+            if(type.includes('income')) { icon = 'trending-up'; color = 'text-green-500'; }
+            if(type.includes('withdraw')) { icon = 'external-link'; color = 'text-red-500'; }
+            if(type.includes('reward')) { icon = 'award'; color = 'text-blue-500'; }
+
+            return `
+            <div class="premium-card mb-2"> 
+                <div class="history-inner">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                            <i data-lucide="${icon}" class="w-4 h-4 ${color}"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black orbitron text-white uppercase tracking-tighter">${typeRaw}</p>
+                            <p class="text-[9px] font-bold text-gray-500 mt-0.5 uppercase">${tx.detail}</p>
+                            <p class="text-[7px] text-gray-600 mt-0.5">${date} | ${time}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg orbitron text-white font-black">
+                            <span class="text-[10px] text-yellow-600 mr-0.5">$</span>${amount}
+                        </div>
+                        <p class="text-[7px] text-gray-700 font-bold uppercase tracking-widest">On-Chain</p>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        if(window.lucide) lucide.createIcons();
+
+    } catch (e) { 
+        console.error("History Error:", e);
+        const container = document.getElementById('history-container');
+        if(container) container.innerHTML = `<div class="text-center py-20 text-red-800 text-[10px] orbitron font-bold tracking-widest">BLOCKCHAIN ERROR: PLEASE REFRESH</div>`;
+    }
+}
+
+// Global function taaki HTML buttons se call ho sake
+window.showHistory = (cat) => fetchUserHistory(window.userAddress || localStorage.getItem('userAddress'), cat);
+
+async function updateLiveMatrixStatus() {
+    if (!window.contract || !window.userAddress) return;
+
+    try {
+        // Contract se 21 stages ka personal data ek sath fetch karega
+        const allLevels = await window.contract.getGlobalLevelTracker(window.userAddress);
+
+        // --- 1. MAGIC POOL (Index 0 to 5) ---
+        const magicStages = allLevels.slice(0, 6).map(lvl => ({
+            label: lvl.stageName,
+            count: lvl.progress.toNumber(),
+            target: lvl.requiredForUser.toNumber(),
+            completed: lvl.isCompleted
+        }));
+        renderNewMatrixUI('magic-pool-status', magicStages, 'blue');
+
+        // --- 2. ALL CLUBS (Index 6 to 17) ---
+        const clubStages = allLevels.slice(6, 18).map(lvl => ({
+            label: lvl.stageName,
+            count: lvl.progress.toNumber(),
+            target: lvl.requiredForUser.toNumber(),
+            completed: lvl.isCompleted
+        }));
+        renderNewMatrixUI('club-status', clubStages, 'yellow');
+
+        // --- 3. ALL GT (Index 18 to 20) ---
+        const gtStages = allLevels.slice(18, 21).map(lvl => ({
+            label: lvl.stageName,
+            count: lvl.progress.toNumber(),
+            target: lvl.requiredForUser.toNumber(),
+            completed: lvl.isCompleted
+        }));
+        renderNewMatrixUI('gt-status', gtStages, 'purple');
+
+    } catch (error) {
+        console.error("Personal Tracker Sync Error:", error);
+    }
+}
+
+// Naya Render Function jo Level-wise data dikhayega
+function renderNewMatrixUI(containerId, stages, colorTheme) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let html = '';
+    const colors = {
+        blue: 'from-blue-600 to-cyan-400',
+        yellow: 'from-yellow-600 to-orange-400',
+        purple: 'from-purple-600 to-pink-400'
+    };
+
+    stages.forEach(s => {
+        const percentage = (s.count / s.target) * 100;
+        const statusText = s.completed ? "COMPLETED" : `${s.count}/${s.target}`;
+        const barColor = s.completed ? "from-green-500 to-emerald-400" : colors[colorTheme];
+
+        html += `
+            <div class="mb-4">
+                <div class="flex justify-between text-[11px] orbitron mb-1">
+                    <span class="text-gray-400 uppercase font-bold">${s.label}</span>
+                    <span class="${s.completed ? 'text-green-400' : 'text-white'} font-black">
+                        ${statusText}
+                    </span>
+                </div>
+                <div class="h-2 bg-white/5 rounded-full border border-white/10 p-[1px]">
+                    <div class="h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-1000" 
+                         style="width: ${percentage}%"></div>
+                </div>
+            </div>`;
+    });
+    container.innerHTML = html;
+}
+
+async function fetchLevelTeam(address) {
+    try {
+        const container = document.getElementById('level-team-data');
+        if (!container) return;
+        let html = "";
+        for(let i=1; i<=20; i++) {
+            const levelMembers = await contract.getLevelTeam(address, i);
+            if(levelMembers.length > 0) {
+                html += `<div>Level ${i}: ${levelMembers.length} Members</div>`;
+            }
+        }
+        container.innerHTML = html;
+    } catch (e) { console.error(e); }
+}
+
+const format = (val) => {
+    try { return parseFloat(ethers.utils.formatUnits(val, 18)).toFixed(2); } 
+    catch (e) { return "0.00"; }
+};
+
+const updateText = (id, val) => {
+    const elements = document.querySelectorAll(`[id="${id}"]`); 
+    elements.forEach(el => { el.innerText = val; });
+};
+
+function updateNavbar(addr) {
+    const btn = document.getElementById('connect-btn');
+    if(btn) btn.innerText = addr.substring(0,6) + "..." + addr.substring(38);
+}
+
+window.addEventListener('load', init);
+
+
+
+
+
+
+
+
