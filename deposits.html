@@ -5,71 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reward | Star Future</title>
 
+    <link rel="stylesheet" href="style1.css">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        :root { --gold: #FFD700; --dark-bg: #050505; }
-        body { background: var(--dark-bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .orbitron { font-family: 'Orbitron', sans-serif; }
-        .premium-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; position: relative; overflow: hidden; }
-        .inner-content { padding: 24px; z-index: 2; position: relative; }
-        .status-badge { background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 4px 10px; border-radius: 8px; font-size: 9px; font-weight: 800; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .progress-container { background: rgba(255,255,255,0.05); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-bar-node { background: linear-gradient(90deg, #FFD700, #B8860B); height: 100%; transition: width 1s ease-in-out; }
-        .chart-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 20px; }
-        
-        /* Reward Timeline CSS */
-        .timeline-line { position: absolute; top: 16px; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.1); z-index: 0; }
-        .node-active { background: var(--gold) !important; box-shadow: 0 0 15px var(--gold); border-color: black !important; }
-        .node-claimed { background: #22c55e !important; border-color: black !important; }
+        /* Extra UI Polish for "Maza" factor */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .neon-border {
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.05);
+        }
+        .timeline-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .timeline-container::-webkit-scrollbar-thumb {
+            background: rgba(234, 179, 8, 0.3);
+            border-radius: 10px;
+        }
+        .leg-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="bg-[#050505] text-white">
 
-    <main class="max-w-7xl mx-auto space-y-8 pt-10 relative z-10">
+    <div id="nav-placeholder"></div>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-10 space-y-10 pt-28 pb-20 relative z-10">
         
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-black orbitron italic uppercase tracking-tighter">
-                    Network <span class="text-yellow-500">Analytics</span>
+                <h1 class="text-4xl font-black orbitron italic uppercase tracking-tighter">
+                    Team <span class="text-yellow-500">Rewards</span>
                 </h1>
-                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">Live Blockchain Node & Team Data</p>
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em]">Star Future Leadership Analytics</p>
             </div>
-            <button onclick="syncData()" class="bg-white/5 border border-white/10 p-3 rounded-xl hover:bg-white/10 transition-all group">
-                <i data-lucide="refresh-cw" class="w-5 h-5 text-yellow-500 group-hover:rotate-180 transition-transform duration-500"></i>
-            </button>
+            <div class="flex gap-3">
+                <button onclick="syncData()" class="bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-yellow-500/10 hover:border-yellow-500/50 transition-all group">
+                    <i data-lucide="refresh-cw" class="w-5 h-5 text-yellow-500 group-hover:rotate-180 transition-transform duration-700"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="chart-container overflow-x-auto">
-            <div class="flex justify-between items-center mb-6">
-                <p class="orbitron text-[10px] text-yellow-500 uppercase tracking-widest">Leadership Reward Progress</p>
-                <span id="next-reward-target" class="text-[10px] orbitron text-gray-500"></span>
-            </div>
-            <div class="relative px-4 pb-4">
-                <div class="timeline-line"></div>
-                <div class="flex justify-between min-w-[900px] relative z-10" id="reward-timeline">
+        <div class="premium-card neon-border overflow-hidden">
+            <div class="inner-content">
+                <div class="flex justify-between items-center mb-10">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full animate-ping"></div>
+                        <p class="orbitron text-[10px] text-yellow-500 uppercase tracking-widest">Global Milestone Tracker</p>
                     </div>
+                    <span id="rank-badge" class="status-badge">RANK: STARTER</span>
+                </div>
+                
+                <div class="timeline-container overflow-x-auto pb-6">
+                    <div class="relative min-w-[1000px] px-10">
+                        <div class="timeline-line" style="top: 20px;"></div>
+                        <div class="flex justify-between relative z-10" id="reward-timeline">
+                            </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <div class="lg:col-span-2 premium-card">
                 <div class="inner-content">
-                    <div class="flex justify-between items-center mb-6">
-                        <p class="orbitron text-xs font-bold text-white uppercase">Direct Legs Distribution</p>
-                        <span class="text-[10px] text-gray-500 italic">Sorted by Power</span>
+                    <div class="flex items-center gap-3 mb-8">
+                        <i data-lucide="users" class="text-yellow-500 w-5 h-5"></i>
+                        <p class="orbitron text-xs font-bold text-white uppercase tracking-wider">Leg Performance Details</p>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-[11px] orbitron">
+                        <table class="w-full text-[11px] orbitron">
                             <thead>
-                                <tr class="text-gray-500 border-b border-white/5">
-                                    <th class="pb-4">Direct Partner</th>
-                                    <th class="pb-4 text-center">Leg Team Size</th>
-                                    <th class="pb-4 text-right">Position</th>
+                                <tr class="text-gray-500 border-b border-white/5 uppercase">
+                                    <th class="pb-5 text-left font-medium">Direct Partner Address</th>
+                                    <th class="pb-5 text-center font-medium">Team Volume</th>
+                                    <th class="pb-5 text-right font-medium">Leg Status</th>
                                 </tr>
                             </thead>
                             <tbody id="leg-table-body" class="divide-y divide-white/5">
@@ -79,48 +99,66 @@
                 </div>
             </div>
 
-            <div class="premium-card">
+            <div class="premium-card border-l-4 border-l-yellow-500">
                 <div class="inner-content">
-                    <p class="orbitron text-xs font-bold text-cyan-500 mb-6 uppercase">40:30:30 Qualification</p>
-                    <div id="qualification-bars" class="space-y-6">
+                    <div class="flex items-center gap-3 mb-8">
+                        <i data-lucide="shield-check" class="text-cyan-500 w-5 h-5"></i>
+                        <p class="orbitron text-xs font-bold text-cyan-500 uppercase tracking-wider">Qualification Status</p>
+                    </div>
+                    
+                    <div id="qualification-bars" class="space-y-8">
                         </div>
                     
-                    <div class="mt-8 pt-6 border-t border-white/10">
+                    <div class="mt-10 pt-8 border-t border-white/5">
                         <button id="claim-btn" disabled onclick="handleClaim()" 
-                                class="w-full py-4 rounded-xl orbitron text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-20 disabled:cursor-not-allowed bg-yellow-500 text-black shadow-lg shadow-yellow-500/20">
-                            Claim Next Reward
+                                class="w-full py-5 rounded-2xl orbitron text-xs font-black uppercase tracking-[0.2em] transition-all 
+                                       disabled:opacity-10 disabled:grayscale bg-gradient-to-r from-yellow-600 to-yellow-400 text-black 
+                                       shadow-[0_0_30px_rgba(234,179,8,0.2)] hover:scale-[1.02] active:scale-95">
+                            Claim Reward
                         </button>
+                        <p class="text-[8px] text-center text-gray-500 mt-4 uppercase tracking-widest">Rewards are processed instantly to your wallet</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="pt-10">
-            <h2 class="orbitron text-xl font-black mb-6 uppercase">Mining <span class="text-yellow-500">Nodes</span></h2>
+            <div class="flex items-center gap-3 mb-8">
+                <i data-lucide="box" class="text-yellow-500 w-6 h-6"></i>
+                <h2 class="orbitron text-xl font-black uppercase italic">Active <span class="text-yellow-500">Nodes</span></h2>
+            </div>
             <div id="deposits-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20">
                 </div>
         </div>
-
     </main>
-<div id="footer-placeholder"></div>
+
+    <div id="footer-placeholder"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="components.js"></script>
+    <script src="web3-handler.js"></script>
+    
     <script>
         const rewardTeam = [30, 50, 200, 500, 1500, 3000, 5000, 10000, 20000, 30000];
         const rewardAmt = [10, 30, 100, 200, 500, 1000, 2000, 5000, 10000, 15000];
 
         async function syncData() {
+            // Priority Check: Get contract from web3-handler.js
             const contract = window.contract;
             const address = localStorage.getItem('userAddress');
-            if(!contract || !address) return;
+            
+            if(!contract || !address) {
+                console.log("Re-checking connection...");
+                return;
+            }
 
             try {
-                // 1. Fetch Contract Data
                 const stats = await contract.userStats(address);
-                const currentLevel = parseInt(stats[3]); // userStats[u][3]
+                const currentLevel = parseInt(stats[3]); 
                 const totalTeam = parseInt(stats[1]);
                 const directs = await contract.getLevelTeam(address, 1);
 
-                // 2. Process Legs
+                // Process Legs Data
                 let legData = [];
                 for(let d of directs) {
                     const count = await contract.legTeamCount(address, d);
@@ -128,31 +166,35 @@
                 }
                 legData.sort((a,b) => b.count - a.count);
 
-                // 3. Render Timeline
                 renderTimeline(currentLevel, totalTeam);
-
-                // 4. Render Table
                 renderLegTable(legData);
-
-                // 5. Render Qualification Bars
                 renderQualification(legData, currentLevel);
+                
+                // If you have a function to load deposits in web3-handler
+                if (window.loadActiveDeposits) loadActiveDeposits();
 
-            } catch(e) { console.error("Sync Failed", e); }
+            } catch(e) { 
+                console.error("Sync Error:", e);
+            }
         }
 
-        function renderTimeline(currentLevel, totalTeam) {
+        function renderTimeline(level, team) {
             let html = '';
             rewardTeam.forEach((target, i) => {
-                const isClaimed = i < currentLevel;
-                const isEligible = !isClaimed && totalTeam >= target;
+                const isClaimed = i < level;
+                const isEligible = !isClaimed && team >= target;
                 html += `
-                    <div class="flex-1 text-center relative">
-                        <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center border-2 z-10 relative 
-                            ${isClaimed ? 'node-claimed' : isEligible ? 'node-active animate-pulse' : 'bg-[#111] border-white/10'}">
-                            <i data-lucide="${isClaimed ? 'check' : 'lock'}" class="w-3 h-3 ${isClaimed || isEligible ? 'text-black' : 'text-gray-500'}"></i>
+                    <div class="flex-1 text-center relative px-2">
+                        <div class="w-10 h-10 mx-auto rounded-xl flex items-center justify-center border-2 transition-all duration-500
+                            ${isClaimed ? 'bg-green-500 border-green-400 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 
+                              isEligible ? 'bg-yellow-500 border-yellow-300 animate-bounce shadow-[0_0_15px_rgba(234,179,8,0.5)]' : 
+                              'bg-white/5 border-white/10 opacity-40'}">
+                            <i data-lucide="${isClaimed ? 'check-circle' : 'lock'}" class="w-4 h-4 text-black"></i>
                         </div>
-                        <p class="mt-3 orbitron text-[9px] font-bold text-white">$${rewardAmt[i]}</p>
-                        <p class="text-[7px] text-gray-500 uppercase">${target} Team</p>
+                        <div class="mt-4">
+                            <p class="orbitron text-[10px] font-black ${isClaimed || isEligible ? 'text-white' : 'text-gray-600'}">$${rewardAmt[i]}</p>
+                            <p class="text-[7px] text-gray-500 font-bold uppercase tracking-tighter">${target} Team</p>
+                        </div>
                     </div>`;
             });
             document.getElementById('reward-timeline').innerHTML = html;
@@ -161,70 +203,77 @@
 
         function renderLegTable(legs) {
             let html = legs.map((leg, i) => `
-                <tr>
-                    <td class="py-4 text-gray-400 font-mono text-[9px]">${leg.address}</td>
-                    <td class="py-4 text-center font-black text-white">${leg.count}</td>
-                    <td class="py-4 text-right">
-                        <span class="px-2 py-1 rounded-md text-[8px] font-bold 
-                        ${i==0 ? 'bg-yellow-500/10 text-yellow-500' : i==1 ? 'bg-cyan-500/10 text-cyan-500' : 'bg-white/5 text-gray-500'}">
-                            ${i==0 ? 'POWER LEG' : i==1 ? 'SECOND LEG' : 'OTHER LEG'}
+                <tr class="leg-row">
+                    <td class="py-5 text-gray-400 font-mono text-[10px] tracking-widest">
+                        ${leg.address.substring(0, 10)}...${leg.address.substring(32)}
+                    </td>
+                    <td class="py-5 text-center">
+                        <span class="text-sm font-black orbitron">${leg.count}</span>
+                    </td>
+                    <td class="py-5 text-right">
+                        <span class="px-3 py-1 rounded-full text-[8px] font-black tracking-widest
+                        ${i==0 ? 'bg-yellow-500 text-black' : i==1 ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-gray-500'}">
+                            ${i==0 ? 'POWER LEG' : i==1 ? 'SECOND LEG' : 'SUB LEG'}
                         </span>
                     </td>
                 </tr>
             `).join('');
-            document.getElementById('leg-table-body').innerHTML = html || '<tr><td colspan="3" class="py-10 text-center text-gray-600">No data found</td></tr>';
+            document.getElementById('leg-table-body').innerHTML = html || '<tr><td colspan="3" class="py-20 text-center opacity-30 orbitron text-xs">No Direct Network Detected</td></tr>';
         }
 
         function renderQualification(legs, level) {
-            if(level >= 10) return;
+            if(level >= 10) {
+                document.getElementById('qualification-bars').innerHTML = `<div class="text-center py-10 text-yellow-500 orbitron text-xs">ALL REWARDS ACHIEVED!</div>`;
+                return;
+            }
             const target = rewardTeam[level];
             const power = legs[0]?.count || 0;
             const second = legs[1]?.count || 0;
             const others = legs.slice(2).reduce((a,b) => a + b.count, 0);
 
             const caps = [target * 0.4, target * 0.3, target * 0.3];
-            const counts = [power, second, others];
-            const colors = ['yellow', 'cyan', 'purple'];
-            const labels = ['Power Leg (40%)', 'Second Leg (30%)', 'Other Legs (30%)'];
+            const data = [
+                { label: 'Strongest Leg (40%)', val: power, cap: caps[0], col: 'from-yellow-500 to-yellow-300' },
+                { label: 'Second Leg (30%)', val: second, cap: caps[1], col: 'from-cyan-500 to-blue-400' },
+                { label: 'Other Combined (30%)', val: others, cap: caps[2], col: 'from-purple-500 to-pink-400' }
+            ];
 
-            let html = counts.map((count, i) => {
-                const perc = Math.min((count / caps[i]) * 100, 100);
+            document.getElementById('qualification-bars').innerHTML = data.map(item => {
+                const perc = Math.min((item.val / item.cap) * 100, 100);
                 return `
                     <div>
-                        <div class="flex justify-between text-[9px] orbitron mb-1 uppercase">
-                            <span class="text-gray-500">${labels[i]}</span>
-                            <span class="${perc >= 100 ? 'text-green-500' : 'text-white'}">${count} / ${caps[i]}</span>
+                        <div class="flex justify-between text-[10px] orbitron mb-2">
+                            <span class="text-gray-400 uppercase tracking-tighter">${item.label}</span>
+                            <span class="font-bold">${item.val} <span class="text-gray-600">/ ${item.cap}</span></span>
                         </div>
-                        <div class="progress-container !mt-0 h-1">
-                            <div class="h-full bg-${colors[i]}-500 shadow-[0_0_8px]" style="width:${perc}%"></div>
+                        <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r ${item.col} transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.1)]" style="width:${perc}%"></div>
                         </div>
                     </div>`;
             }).join('');
 
-            document.getElementById('qualification-bars').innerHTML = html;
-            
-            // Enable claim if qualified
             const qTotal = Math.min(power, caps[0]) + Math.min(second, caps[1]) + Math.min(others, caps[2]);
             const btn = document.getElementById('claim-btn');
             if(qTotal >= target) {
                 btn.disabled = false;
-                btn.innerText = `Claim $${rewardAmt[level]} Reward Now`;
+                btn.classList.add('animate-pulse');
+                btn.innerHTML = `CLAIM $${rewardAmt[level]} REWARD`;
             } else {
-                btn.innerText = `Need ${target - Math.round(qTotal)} more for $${rewardAmt[level]}`;
+                btn.innerHTML = `Need ${Math.ceil(target - qTotal)} more for next reward`;
             }
         }
 
         async function handleClaim() {
             try {
                 const tx = await window.contract.claimReward();
-                alert("Claim transaction submitted!");
-                await tx.wait();
                 syncData();
-            } catch(e) { alert("Claim failed: " + e.reason); }
+            } catch(e) { console.error(e); }
         }
 
+        // Initialize on load
         window.addEventListener('load', () => {
-            setTimeout(syncData, 2000);
+            setTimeout(syncData, 1500);
+            lucide.createIcons();
         });
     </script>
 </body>
