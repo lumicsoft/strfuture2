@@ -120,70 +120,82 @@ window.handleRegister = async function() {
 
 window.handleWithdraw = async function() {
     const withdrawBtn = document.getElementById('withdrawBtn');
-    if (!withdrawBtn) return;
+    const amountInput = document.getElementById('withdraw-amount'); // HTML input field
+    
+    if (!withdrawBtn) {
+        console.error("Button with ID 'withdrawBtn' not found in HTML!");
+        return;
+    }
     
     const originalText = withdrawBtn.innerText;
     
     try {
-        // 1. Basic Validation
+        // Validation: Wallet Connection
         if (!window.signer || !window.contract) {
-            alert("Wallet not connected properly. Please refresh.");
+            alert("Wallet not connected! Please refresh the page.");
             return;
         }
 
         withdrawBtn.disabled = true;
-        withdrawBtn.innerText = "CHECKING BALANCE...";
+        withdrawBtn.innerText = "FETCHING...";
 
         const userAddr = await window.signer.getAddress();
         
-        // 2. Fetch Stats (Using Index 1 for Available Balance)
-        const accountStats = await window.contract.getUserAccountStats(userAddr);
-        
         // Contract returns: (string club, uint256 balance, uint256 withdrawn)
-        // Isliye balance index [1] par hoga
-        const available = accountStats[1]; 
+        const accountStats = await window.contract.getUserAccountStats(userAddr);
+        const availableInWei = accountStats[1]; // Index 1 is availableBalance
 
-        console.log("Available Balance (Wei):", available.toString());
+        // Amount Calculation
+        let amountToWithdraw;
+        if (amountInput && amountInput.value > 0) {
+            // Agar user ne box mein amount dala hai
+            amountToWithdraw = ethers.utils.parseUnits(amountInput.value.toString(), 18);
+        } else {
+            // Agar box khali hai toh full balance
+            amountToWithdraw = availableInWei;
+        }
 
-        // 3. Check if balance is zero
-        if (available.isZero()) {
-            alert("Aapka Available Balance 0 hai. Withdrawal nahi ho sakta.");
+        // Logic Check
+        if (availableInWei.isZero()) {
+            alert("Aapka Available Balance 0 hai.");
             withdrawBtn.disabled = false;
             withdrawBtn.innerText = originalText;
             return;
         }
 
-        // 4. Trigger Contract Withdrawal
-        withdrawBtn.innerText = "CONFIRM IN WALLET...";
+        if (amountToWithdraw.gt(availableInWei)) {
+            alert("Insufficient Balance! Aapke paas itna fund nahi hai.");
+            withdrawBtn.disabled = false;
+            withdrawBtn.innerText = originalText;
+            return;
+        }
+
+        withdrawBtn.innerText = "CONFIRMING...";
         
-        // Gas limit manually set kar rahe hain taaki fail na ho
-        const tx = await window.contract.withdraw(available, {
+        // Main Transaction Call
+        const tx = await window.contract.withdraw(amountToWithdraw, {
             gasLimit: 300000 
         });
 
-        withdrawBtn.innerText = "PROCESSING TX...";
-        console.log("Transaction Hash:", tx.hash);
+        withdrawBtn.innerText = "PROCESSING...";
+        console.log("Tx Hash:", tx.hash);
 
         const receipt = await tx.wait();
         
         if (receipt.status === 1) {
-            alert("Withdrawal Successful! USDT aapke wallet mein bhej diya gaya hai.");
+            alert("Withdrawal Successful! USDT transferred.");
             location.reload();
         } else {
-            throw new Error("Transaction Reverted on Blockchain");
+            throw new Error("Transaction Reverted!");
         }
 
     } catch (err) {
-        console.error("Withdraw Error Detail:", err);
-        
-        // User-friendly error message
-        let errorMsg = "Withdraw fail ho gaya!";
-        if (err.code === 4001) errorMsg = "User ne transaction cancel kar di.";
+        console.error("Withdraw Error:", err);
+        let errorMsg = "Withdraw failed!";
+        if (err.code === 4001) errorMsg = "Transaction cancelled by user.";
         else if (err.reason) errorMsg = "Reason: " + err.reason;
-        else if (err.message) errorMsg = err.message;
-
-        alert(errorMsg);
         
+        alert(errorMsg);
         withdrawBtn.innerText = originalText;
         withdrawBtn.disabled = false;
     }
@@ -516,6 +528,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
