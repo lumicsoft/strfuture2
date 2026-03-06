@@ -6,133 +6,126 @@
     <title>Leadership Rewards | Star Future</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <script src="component.js"></script> 
-
+    <link rel="stylesheet" href="style1.css">
+    
     <style>
         :root { --gold: #FFD700; --dark-bg: #050505; }
-        body { background: var(--dark-bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #000; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
         .orbitron { font-family: 'Orbitron', sans-serif; }
-        .premium-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
         .node-pulse { box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .timeline-line { position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.1); z-index: 0; }
-        /* Footer spacing */
-        footer-component { margin-top: 50px; display: block; }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
-    <header-component></header-component>
+    <div id="header-placeholder"></div>
 
-    <main class="max-w-7xl mx-auto space-y-8 pt-24 pb-10">
-        <div class="flex justify-between items-end">
+    <main class="max-w-7xl mx-auto space-y-6 mt-20 pb-20">
+        
+        <div class="flex justify-between items-end mb-4">
             <div>
                 <h1 class="text-3xl font-black orbitron italic text-white uppercase tracking-tighter">
                     Reward <span class="text-yellow-500">Analytics</span>
                 </h1>
-                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">Qualification: 40% : 30% : 30% Leg Ratio</p>
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">Requirement: 40% : 30% : 30% Leg Ratio</p>
             </div>
             <button onclick="syncData()" class="bg-white/5 border border-white/10 p-3 rounded-xl hover:bg-white/10 transition-all">
                 <i data-lucide="refresh-cw" class="w-5 h-5 text-yellow-500"></i>
             </button>
         </div>
 
-        <div class="premium-card p-6 overflow-x-auto relative">
-            <p class="orbitron text-[10px] text-yellow-500 uppercase mb-10 font-bold tracking-widest">Leadership Roadmap</p>
-            <div class="relative px-4 pb-4">
-                <div class="timeline-line"></div>
-                <div id="reward-timeline" class="flex justify-between min-w-[1000px] relative z-10">
-                    <p class="text-center w-full opacity-50 orbitron text-[10px]">Loading Rewards...</p>
+        <div class="premium-card">
+            <div class="inner-content !block p-6 overflow-x-auto relative">
+                <p class="orbitron text-[10px] text-yellow-500 uppercase mb-10 font-bold tracking-widest">Leadership Roadmap</p>
+                <div class="relative px-4 pb-4">
+                    <div class="timeline-line"></div>
+                    <div class="flex justify-between min-w-[1000px] relative z-10" id="reward-timeline">
+                        <p class="text-center w-full opacity-30 orbitron text-xs">Initializing Roadmap...</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 premium-card p-6">
-                <p class="orbitron text-xs font-bold text-white uppercase mb-6 tracking-widest">Direct Partners (Leg Volume)</p>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-[11px] orbitron">
-                        <thead>
-                            <tr class="text-gray-500 border-b border-white/5 uppercase">
-                                <th class="pb-4">Partner</th>
-                                <th class="pb-4 text-center">Leg Team</th>
-                                <th class="pb-4 text-right">Classification</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leg-table-body" class="divide-y divide-white/5">
-                            <tr><td colspan="3" class="py-10 text-center opacity-30">Analyzing Network...</td></tr>
-                        </tbody>
-                    </table>
+            <div class="lg:col-span-2 premium-card">
+                <div class="inner-content !block p-6">
+                    <h3 class="orbitron text-xs font-bold text-white uppercase mb-6 tracking-widest flex items-center gap-2">
+                        <i data-lucide="network" class="w-4 h-4 text-yellow-500"></i> Direct Partners (Leg Volume)
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[11px] orbitron">
+                            <thead>
+                                <tr class="text-gray-500 border-b border-white/5 uppercase">
+                                    <th class="pb-4">Partner Address</th>
+                                    <th class="pb-4 text-center">Team Size</th>
+                                    <th class="pb-4 text-right">Classification</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leg-table-body" class="divide-y divide-white/5">
+                                <tr><td colspan="3" class="py-10 text-center opacity-30">Fetching network data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="premium-card p-6">
-                <p class="orbitron text-xs font-bold text-cyan-500 mb-8 uppercase tracking-widest">Next Reward Progress</p>
-                <div id="qualification-bars" class="space-y-8"></div>
-                <div class="mt-10 pt-6 border-t border-white/10">
-                    <button id="claim-btn" disabled onclick="handleClaim()" 
-                            class="w-full py-4 rounded-xl orbitron text-[10px] font-black uppercase tracking-widest transition-all bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
-                        Checking Eligibility...
-                    </button>
+            <div class="premium-card">
+                <div class="inner-content !block p-6">
+                    <p class="orbitron text-xs font-bold text-cyan-500 mb-8 uppercase tracking-widest">Next Reward Progress</p>
+                    <div id="qualification-bars" class="space-y-8">
+                        </div>
+                    
+                    <div class="mt-10 pt-6 border-t border-white/10">
+                        <button id="claim-btn" disabled onclick="handleClaim()" 
+                                class="w-full py-4 rounded-xl orbitron text-[10px] font-black uppercase tracking-widest transition-all bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                            Checking Eligibility...
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer-component></footer-component>
+    <div id="footer-placeholder"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="components.js"></script>
+    <script src="web3-handler.js"></script>
+    
     <script>
     const rewardTeam = [30, 50, 200, 500, 1500, 3000, 5000, 10000, 20000, 30000];
     const rewardAmt = [10, 30, 100, 200, 500, 1000, 2000, 5000, 10000, 15000];
 
     async function syncData() {
-        // Contract Connection Check
-        if (!window.ethereum) return;
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
         const address = window.userAddress || localStorage.getItem('userAddress');
         const contract = window.contract;
-
-        if(!contract || !address) { 
-            console.log("Re-attempting connection...");
-            setTimeout(syncData, 1500); 
-            return; 
-        }
+        if(!contract || !address) { setTimeout(syncData, 1000); return; }
 
         try {
-            // Index 1 = Total Team, Index 3 = Level Claimed
+            // Data Fetching
             const teamSizeRaw = await contract.userStats(address, 1);
             const levelIdxRaw = await contract.userStats(address, 3);
-            
             const teamSize = parseInt(teamSizeRaw.toString());
             const currentLevel = parseInt(levelIdxRaw.toString());
 
-            // Contract Mapping call fix
             const directs = await contract.getLevelTeam(address, 1);
             let legs = [];
-            
             for(let d of directs) {
-                // Correct Mapping Fetch
                 const count = await contract.legTeamCount(address, d);
                 legs.push({ addr: d, count: parseInt(count.toString()) });
             }
-            
-            // Sort by team size (Power Leg logic)
             legs.sort((a,b) => b.count - a.count);
 
             renderUI(currentLevel, teamSize, legs);
-            if(window.lucide) lucide.createIcons();
-            
-        } catch(e) { 
-            console.error("Sync Error:", e);
-        }
+        } catch(e) { console.error("Sync Error:", e); }
     }
 
     function renderUI(level, team, legs) {
-        // 1. Timeline Update
+        // 1. Timeline
         document.getElementById('reward-timeline').innerHTML = rewardTeam.map((target, i) => {
             const done = i < level;
             const can = !done && team >= target;
@@ -142,37 +135,32 @@
                         ${done ? 'bg-green-500 border-green-400' : can ? 'bg-yellow-500 border-white node-pulse' : 'bg-white/5 border-white/10 opacity-30'}">
                         <i data-lucide="${done ? 'check' : 'gift'}" class="w-4 h-4 text-black"></i>
                     </div>
-                    <p class="orbitron text-[10px] mt-4 font-black ${done ? 'text-green-400' : 'text-white'}">$${rewardAmt[i]}</p>
-                    <p class="text-[7px] text-gray-500 font-bold uppercase">${target} TEAM</p>
+                    <p class="orbitron text-[10px] mt-4 font-black">$${rewardAmt[i]}</p>
                 </div>`;
         }).join('');
 
-        // 2. Leg Table Update
-        if(legs.length > 0) {
-            document.getElementById('leg-table-body').innerHTML = legs.map((l, i) => {
-                let label = i == 0 ? 'POWER LEG (40%)' : i == 1 ? '2ND LEG (30%)' : 'OTHER LEGS (30%)';
-                let color = i == 0 ? 'text-yellow-500' : i == 1 ? 'text-orange-400' : 'text-gray-500';
-                return `
-                <tr>
-                    <td class="py-4 font-mono text-gray-400">${l.addr.substring(0,6)}...${l.addr.substring(38)}</td>
-                    <td class="py-4 text-center font-bold text-sm">${l.count}</td>
-                    <td class="py-4 text-right">
-                        <span class="text-[9px] font-black ${color}">${label}</span>
-                    </td>
-                </tr>`;
-            }).join('');
-        }
+        // 2. Table
+        document.getElementById('leg-table-body').innerHTML = legs.map((l, i) => `
+            <tr>
+                <td class="py-4 font-mono text-gray-500">${l.addr.substring(0,14)}...</td>
+                <td class="py-4 text-center font-bold">${l.count}</td>
+                <td class="py-4 text-right">
+                    <span class="text-[9px] font-black ${i==0?'text-yellow-500':i==1?'text-orange-400':'text-gray-600'}">
+                        ${i==0?'POWER LEG (40%)':i==1?'2ND LEG (30%)':'OTHERS (30%)'}
+                    </span>
+                </td>
+            </tr>`).join('');
 
-        // 3. Ratio Logic (40:30:30)
+        // 3. Logic (40:30:30)
         if(level < 10) {
             const target = rewardTeam[level];
             const caps = [target * 0.4, target * 0.3, target * 0.3];
             const leg1 = legs[0]?.count || 0;
             const leg2 = legs[1]?.count || 0;
-            const others = legs.slice(2).reduce((sum, leg) => sum + leg.count, 0);
+            const others = legs.slice(2).reduce((a,b) => a + b.count, 0);
             
             const vals = [leg1, leg2, others];
-            const labels = ['Power Leg (Max 40%)', '2nd Leg (Max 30%)', 'Others (Max 30%)'];
+            const labels = ['Power Leg (40%)', '2nd Leg (30%)', 'Others (30%)'];
             
             document.getElementById('qualification-bars').innerHTML = vals.map((v, i) => {
                 const p = Math.min((v/caps[i])*100, 100);
@@ -188,34 +176,25 @@
                     </div>`;
             }).join('');
 
-            // Claim Eligibility Check
-            const q1 = Math.min(leg1, caps[0]);
-            const q2 = Math.min(leg2, caps[1]);
-            const q3 = Math.min(others, caps[2]);
-            const totalQualified = q1 + q2 + q3;
-            
+            const totalQualified = Math.min(leg1, caps[0]) + Math.min(leg2, caps[1]) + Math.min(others, caps[2]);
             const btn = document.getElementById('claim-btn');
             if(totalQualified >= target) {
                 btn.disabled = false;
                 btn.innerText = `CLAIM $${rewardAmt[level]} REWARD`;
-                btn.className = "w-full py-4 rounded-xl orbitron text-[10px] font-black bg-green-500 text-white shadow-lg shadow-green-500/20";
+                btn.className = "btn-gold-pro w-full py-4 rounded-xl orbitron text-[10px] font-black uppercase";
             } else {
-                btn.innerText = `${Math.ceil(target - totalQualified)} TEAM POINTS NEEDED`;
+                btn.innerText = `${Math.ceil(target - totalQualified)} TEAM NEEDED`;
             }
-        } else {
-            document.getElementById('qualification-bars').innerHTML = `<p class="text-center text-green-500 orbitron py-10">ALL REWARDS CLAIMED!</p>`;
         }
+        if(window.lucide) lucide.createIcons();
     }
 
     async function handleClaim() {
         try {
             const tx = await window.contract.claimReward();
-            alert("Transaction sent! Waiting for confirmation...");
             await tx.wait();
             location.reload();
-        } catch(e) { 
-            alert("Error: " + (e.reason || e.message)); 
-        }
+        } catch(e) { alert(e.reason || e.message); }
     }
 
     window.addEventListener('load', () => setTimeout(syncData, 2000));
