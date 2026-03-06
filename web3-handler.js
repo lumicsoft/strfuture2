@@ -119,34 +119,75 @@ window.handleRegister = async function() {
 };
 
 window.handleWithdraw = async function() {
-    const withdrawBtn = document.getElementById('withdrawBtn');
-    const originalText = withdrawBtn.innerText;
-    try {
-        withdrawBtn.disabled = true;
-        withdrawBtn.innerText = "SIGNING...";
-        const userAddr = await signer.getAddress();
-        const accountStats = await contract.getUserAccountStats(userAddr);
-        const available = accountStats.availableBalance;
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    if (!withdrawBtn) return;
+    
+    const originalText = withdrawBtn.innerText;
+    
+    try {
+        // 1. Basic Validation
+        if (!window.signer || !window.contract) {
+            alert("Wallet not connected properly. Please refresh.");
+            return;
+        }
 
-        if(available.eq(0)) {
-            alert("Nothing to withdraw");
-            withdrawBtn.disabled = false;
-            withdrawBtn.innerText = originalText;
-            return;
-        }
+        withdrawBtn.disabled = true;
+        withdrawBtn.innerText = "CHECKING BALANCE...";
 
-        const tx = await contract.withdraw(available);
-        withdrawBtn.innerText = "WITHDRAWING...";
-        await tx.wait();
-        alert("Withdrawal successful!");
-        location.reload(); 
-    } catch (err) {
-        alert("Withdraw failed: " + (err.reason || err.message));
-        withdrawBtn.innerText = originalText;
-        withdrawBtn.disabled = false;
-    }
+        const userAddr = await window.signer.getAddress();
+        
+        // 2. Fetch Stats (Using Index 1 for Available Balance)
+        const accountStats = await window.contract.getUserAccountStats(userAddr);
+        
+        // Contract returns: (string club, uint256 balance, uint256 withdrawn)
+        // Isliye balance index [1] par hoga
+        const available = accountStats[1]; 
+
+        console.log("Available Balance (Wei):", available.toString());
+
+        // 3. Check if balance is zero
+        if (available.isZero()) {
+            alert("Aapka Available Balance 0 hai. Withdrawal nahi ho sakta.");
+            withdrawBtn.disabled = false;
+            withdrawBtn.innerText = originalText;
+            return;
+        }
+
+        // 4. Trigger Contract Withdrawal
+        withdrawBtn.innerText = "CONFIRM IN WALLET...";
+        
+        // Gas limit manually set kar rahe hain taaki fail na ho
+        const tx = await window.contract.withdraw(available, {
+            gasLimit: 300000 
+        });
+
+        withdrawBtn.innerText = "PROCESSING TX...";
+        console.log("Transaction Hash:", tx.hash);
+
+        const receipt = await tx.wait();
+        
+        if (receipt.status === 1) {
+            alert("Withdrawal Successful! USDT aapke wallet mein bhej diya gaya hai.");
+            location.reload();
+        } else {
+            throw new Error("Transaction Reverted on Blockchain");
+        }
+
+    } catch (err) {
+        console.error("Withdraw Error Detail:", err);
+        
+        // User-friendly error message
+        let errorMsg = "Withdraw fail ho gaya!";
+        if (err.code === 4001) errorMsg = "User ne transaction cancel kar di.";
+        else if (err.reason) errorMsg = "Reason: " + err.reason;
+        else if (err.message) errorMsg = err.message;
+
+        alert(errorMsg);
+        
+        withdrawBtn.innerText = originalText;
+        withdrawBtn.disabled = false;
+    }
 };
-
 window.handleClaimRewards = async function() {
     const claimBtn = document.getElementById('claimBtn');
     const originalText = claimBtn.innerText;
@@ -475,6 +516,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
