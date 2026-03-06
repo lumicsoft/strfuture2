@@ -200,22 +200,27 @@ window.handleWithdraw = async function() {
         withdrawBtn.disabled = false;
     }
 };
-window.handleClaimRewards = async function() {
-    const claimBtn = document.getElementById('claimBtn');
-    const originalText = claimBtn.innerText;
-    try {
-        claimBtn.disabled = true;
-        claimBtn.innerText = "SIGNING...";
-        const tx = await contract.claimReward(); 
-        claimBtn.innerText = "CLAIMING...";
-        await tx.wait();
-        alert("Rewards Claimed Successfully!");
-        location.reload(); 
-    } catch (err) {
-        alert("Claim failed: " + (err.reason || err.message));
-        claimBtn.innerText = originalText;
-        claimBtn.disabled = false;
-    }
+window.handleClaimReward = async function() {
+    const claimBtn = event.target;
+    const originalText = claimBtn.innerText;
+
+    try {
+        if (!window.contract) return alert("Wallet not connected!");
+
+        claimBtn.disabled = true;
+        claimBtn.innerText = "CLAIMING...";
+
+        const tx = await window.contract.claimReward({ gasLimit: 300000 });
+        await tx.wait();
+
+        alert("Rewards Claimed Successfully!");
+        location.reload();
+    } catch (err) {
+        console.error("Claim Error:", err);
+        alert(err.reason || "Claim failed! Maybe Reward Fund is low.");
+        claimBtn.disabled = false;
+        claimBtn.innerText = originalText;
+    }
 };
 
 window.handleLogin = async function() {
@@ -528,6 +533,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
