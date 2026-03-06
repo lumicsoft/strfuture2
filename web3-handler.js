@@ -7,26 +7,30 @@ const TESTNET_CHAIN_ID = 97; 
 const REGISTRATION_FEE = "15";
 
 
-// --- ABI (Exactly same + 2 history functions + 3 matrix functions) ---
+// --- ABI (Updated with missing legTeamCount) ---
 const CONTRACT_ABI = [
-    "function register(address _ref) external",
-    "function withdraw(uint256 _amt) external",
-    "function claimReward() external",
-    "function isRegistered(address) view returns (bool)",
-    "function referrer(address) view returns (address)",
-    "function userStats(address, uint256) view returns (uint256)", 
-    "function userIncomes(address, uint256) view returns (uint256)", 
-    "function rewardFund() view returns (uint256)",
-    "function getUserBasicStats(address _user) external view returns (uint256 team, uint256 directs, uint256 totalEarned)",
-    "function getUserAccountStats(address _user) external view returns (string memory currentClub, uint256 availableBalance, uint256 withdrawn)",
-    "function getMatrixIncomeReport(address _user) external view returns (uint256 dMagic, uint256 c1, uint256 c2, uint256 c3, uint256 c4)",
-    "function getAdvancedIncomeReport(address _user) external view returns (uint256 g1, uint256 g2, uint256 g3, uint256 rwd)",
-    "function getUserHistory(address _user) external view returns (tuple(string txType, uint256 amount, string detail, uint256 timestamp)[])",
-    "function getLevelTeam(address _account, uint256 _level) external view returns (address[] memory)",
-    // NEW MATRIX SYNC FUNCTIONS
-    "function getMagicPoolCounts() external view returns (uint256[6])",
-    "function getClubCounts() external view returns (uint256[4])",
-    "function getGTCounts() external view returns (uint256[3])",
+    "function register(address _ref) external",
+    "function withdraw(uint256 _amt) external",
+    "function claimReward() external",
+    "function isRegistered(address) view returns (bool)",
+    "function referrer(address) view returns (address)",
+    "function userStats(address, uint256) view returns (uint256)", 
+    "function userIncomes(address, uint256) view returns (uint256)", 
+    "function rewardFund() view returns (uint256)",
+    "function getUserBasicStats(address _user) external view returns (uint256 team, uint256 directs, uint256 totalEarned)",
+    "function getUserAccountStats(address _user) external view returns (string memory currentClub, uint256 availableBalance, uint256 withdrawn)",
+    "function getMatrixIncomeReport(address _user) external view returns (uint256 dMagic, uint256 c1, uint256 c2, uint256 c3, uint256 c4)",
+    "function getAdvancedIncomeReport(address _user) external view returns (uint256 g1, uint256 g2, uint256 g3, uint256 rwd)",
+    "function getUserHistory(address _user) external view returns (tuple(string txType, uint256 amount, string detail, uint256 timestamp)[])",
+    "function getLevelTeam(address _account, uint256 _level) external view returns (address[] memory)",
+    
+    // YEH LINE ADD KI HAI (Mapping call for Leg Count)
+    "function legTeamCount(address user, address partner) view returns (uint256)",
+    
+    // NEW MATRIX SYNC FUNCTIONS
+    "function getMagicPoolCounts() external view returns (uint256[6])",
+    "function getClubCounts() external view returns (uint256[4])",
+    "function getGTCounts() external view returns (uint256[3])",
     "function getGlobalLevelTracker(address _user) external view returns (tuple(string stageName, uint256 currentGlobalCount, uint256 userIndex, uint256 requiredForUser, uint256 progress, bool isCompleted)[])",
 ];
 
@@ -471,6 +475,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
