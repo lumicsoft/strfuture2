@@ -1,203 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leadership Rewards | Star Future</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <link rel="stylesheet" href="style1.css">
-    
-    <style>
-        :root { --gold: #FFD700; --dark-bg: #050505; }
-        body { background: #000; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .orbitron { font-family: 'Orbitron', sans-serif; }
-        .node-pulse { box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .timeline-line { position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.1); z-index: 0; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Global Matrix - Pro Max Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="style1.css">
 </head>
-<body class="p-4 md:p-10">
+<body class="p-4 md:p-10 bg-black text-white">
 
-    <div id="header-placeholder"></div>
+    <div id="header-placeholder"></div>
 
-    <main class="max-w-7xl mx-auto space-y-6 mt-20 pb-20">
-        
-        <div class="flex justify-between items-end mb-4">
-            <div>
-                <h1 class="text-3xl font-black orbitron italic text-white uppercase tracking-tighter">
-                    Reward <span class="text-yellow-500">Analytics</span>
-                </h1>
-                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">Requirement: 40% : 30% : 30% Leg Ratio</p>
-            </div>
-            <button onclick="syncData()" class="bg-white/5 border border-white/10 p-3 rounded-xl hover:bg-white/10 transition-all">
-                <i data-lucide="refresh-cw" class="w-5 h-5 text-yellow-500"></i>
-            </button>
-        </div>
+    <main class="max-w-7xl mx-auto space-y-6 mt-20">
+        
+        <div class="premium-card">
+            <div class="inner-content !block">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <div class="info-row flex justify-between border-b border-white/5 py-2">
+                            <div class="flex items-center gap-3"><i data-lucide="user" class="text-yellow-600 w-4 h-4"></i><span class="label-text">User Name:</span></div>
+                            <span id="username-display" class="text-sm font-bold uppercase orbitron text-yellow-500">loading</span>
+                        </div>
+                        <div class="info-row flex justify-between border-b border-white/5 py-2">
+                            <div class="flex items-center gap-3"><i data-lucide="wallet" class="text-yellow-600 w-4 h-4"></i><span class="label-text">Address:</span></div>
+                            <span id="user-address" class="text-xs font-mono text-blue-300 truncate w-48 text-right">loading</span>
+                        </div>
+                        <div class="info-row flex justify-between border-b border-white/5 py-2">
+                            <div class="flex items-center gap-3"><i data-lucide="crown" class="text-yellow-600 w-4 h-4"></i><span class="label-text">Current Club:</span></div>
+                            <span id="rank-display" class="orbitron font-black text-yellow-600 text-xs">NO CLUB</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center bg-black/40 p-5 rounded-2xl border border-white/5">
+                        <p class="label-text text-center mb-3">Referral Link</p>
+                        <div class="flex items-center bg-black border border-white/10 rounded-xl p-1.5 pl-4">
+                            <input id="refURL" type="text" readonly value="loading" class="bg-transparent border-none outline-none w-full text-xs font-mono text-gray-400">
+                            <button onclick="copyLink()" class="btn-gold-pro px-6 py-2 rounded-lg text-[10px]">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <div class="premium-card">
-            <div class="inner-content !block p-6 overflow-x-auto relative">
-                <p class="orbitron text-[10px] text-yellow-500 uppercase mb-10 font-bold tracking-widest">Leadership Roadmap</p>
-                <div class="relative px-4 pb-4">
-                    <div class="timeline-line"></div>
-                    <div class="flex justify-between min-w-[1000px] relative z-10" id="reward-timeline">
-                        <p class="text-center w-full opacity-30 orbitron text-xs">Initializing Roadmap...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="premium-card" id="activation-section">
+            <div class="inner-content flex flex-col gap-6 p-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-yellow-600/20 rounded-lg border border-yellow-600/30">
+                        <i data-lucide="zap" class="text-yellow-500 w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="label-text">Activate Global Matrix</p>
+                        <p class="text-[10px] text-gray-500 uppercase">Cost: 15 USDT | Status: <span id="main-status-text" class="text-red-500 font-bold">INACTIVE</span></p>
+                    </div>
+                </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 premium-card">
-                <div class="inner-content !block p-6">
-                    <h3 class="orbitron text-xs font-bold text-white uppercase mb-6 tracking-widest flex items-center gap-2">
-                        <i data-lucide="network" class="w-4 h-4 text-yellow-500"></i> Direct Partners (Leg Volume)
-                    </h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-[11px] orbitron">
-                            <thead>
-                                <tr class="text-gray-500 border-b border-white/5 uppercase">
-                                    <th class="pb-4">Partner Address</th>
-                                    <th class="pb-4 text-center">Team Size</th>
-                                    <th class="pb-4 text-right">Classification</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leg-table-body" class="divide-y divide-white/5">
-                                <tr><td colspan="3" class="py-10 text-center opacity-30">Fetching network data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                <div class="flex flex-col md:flex-row items-center gap-3 w-full">
+                    <div class="deposit-input-field w-full md:flex-1 flex items-center px-4 py-3 bg-white/5 rounded-xl border border-white/10">
+                        <span class="text-yellow-500 font-bold mr-2">15</span> <span class="text-gray-400 text-xs uppercase">USDT</span>
+                    </div>
+                    <button id="register-btn" onclick="handleRegister()" class="btn-gold-pro px-8 py-3 rounded-xl text-xs orbitron whitespace-nowrap w-full md:w-auto">Activate Now</button>
+                </div>
+            </div>
+        </div>
 
-            <div class="premium-card">
-                <div class="inner-content !block p-6">
-                    <p class="orbitron text-xs font-bold text-cyan-500 mb-8 uppercase tracking-widest">Next Reward Progress</p>
-                    <div id="qualification-bars" class="space-y-8">
-                        </div>
-                    
-                    <div class="mt-10 pt-6 border-t border-white/10">
-                        <button id="claim-btn" disabled onclick="handleClaim()" 
-                                class="w-full py-4 rounded-xl orbitron text-[10px] font-black uppercase tracking-widest transition-all bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
-                            Checking Eligibility...
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="premium-card"><div class="inner-content stat-box p-5 text-center">
+                <div class="flex justify-center mb-2"><i data-lucide="users" class="text-blue-500 w-5 h-5"></i></div>
+                <p class="label-text opacity-60 uppercase text-[10px] tracking-widest">Total Team</p>
+                <h4 id="team-count" class="text-2xl font-black orbitron">0</h4>
+            </div></div>
+            <div class="premium-card"><div class="inner-content stat-box p-5 text-center">
+                <div class="flex justify-center mb-2"><i data-lucide="user-plus" class="text-purple-500 w-5 h-5"></i></div>
+                <p class="label-text opacity-60 uppercase text-[10px] tracking-widest">Direct Referrals</p>
+                <h4 id="directs-count" class="text-2xl font-black orbitron">0</h4>
+            </div></div>
+            <div class="premium-card"><div class="inner-content stat-box p-5 text-center">
+                <div class="flex justify-center mb-2"><i data-lucide="trending-up" class="text-green-500 w-5 h-5"></i></div>
+                <p class="label-text opacity-60 uppercase text-[10px] tracking-widest">Total Earned</p>
+                <h4 class="text-2xl font-black orbitron text-green-500">$<span id="total-earned">0.00</span></h4>
+            </div></div>
+        </div>
 
-    <div id="footer-placeholder"></div>
+        <div class="premium-card">
+            <div class="inner-content !block p-6">
+                <h3 class="text-xs font-black orbitron mb-6 uppercase text-yellow-500 tracking-widest flex items-center gap-2">
+                    <i data-lucide="grid" class="w-4 h-4"></i> Global Matrix Income Sources
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p class="text-[9px] uppercase text-gray-400">Direct/Magic</p>
+                        <p id="income-magic" class="font-bold orbitron text-sm">$0.00</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p class="text-[9px] uppercase text-gray-400">Club 1</p>
+                        <p id="income-club1" class="font-bold orbitron text-sm">$0.00</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p class="text-[9px] uppercase text-gray-400">Club 2</p>
+                        <p id="income-club2" class="font-bold orbitron text-sm">$0.00</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p class="text-[9px] uppercase text-gray-400">Club 3</p>
+                        <p id="income-club3" class="font-bold orbitron text-sm">$0.00</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p class="text-[9px] uppercase text-gray-400">Club 4</p>
+                        <p id="income-club4" class="font-bold orbitron text-sm">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="components.js"></script>
-    <script src="web3-handler.js"></script>
-    
-    <script>
-    const rewardTeam = [30, 50, 200, 500, 1500, 3000, 5000, 10000, 20000, 30000];
-    const rewardAmt = [10, 30, 100, 200, 500, 1000, 2000, 5000, 10000, 15000];
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="premium-card"><div class="inner-content p-5 bg-blue-600/10 rounded-2xl border border-blue-500/20">
+                <p class="text-[10px] text-blue-400 font-bold uppercase">GT Stage 1</p>
+                <h3 class="text-xl font-black orbitron">$<span id="income-gt1">0.00</span></h3>
+            </div></div>
+            <div class="premium-card"><div class="inner-content p-5 bg-purple-600/10 rounded-2xl border border-purple-500/20">
+                <p class="text-[10px] text-purple-400 font-bold uppercase">GT Stage 2</p>
+                <h3 class="text-xl font-black orbitron">$<span id="income-gt2">0.00</span></h3>
+            </div></div>
+            <div class="premium-card"><div class="inner-content p-5 bg-pink-600/10 rounded-2xl border border-pink-500/20">
+                <p class="text-[10px] text-pink-400 font-bold uppercase">GT Stage 3</p>
+                <h3 class="text-xl font-black orbitron">$<span id="income-gt3">0.00</span></h3>
+            </div></div>
+            <div class="premium-card border-yellow-500/50"><div class="inner-content p-5 bg-yellow-600/10 rounded-2xl border border-yellow-500/20">
+                <p class="text-[10px] text-yellow-500 font-bold uppercase">Total Rewards</p>
+                <h3 class="text-xl font-black orbitron">$<span id="income-reward">0.00</span></h3>
+            </div></div>
+        </div>
 
-    async function syncData() {
-        const address = window.userAddress || localStorage.getItem('userAddress');
-        const contract = window.contract;
-        if(!contract || !address) { setTimeout(syncData, 1000); return; }
+        <div class="premium-card">
+            <div class="inner-content !block py-12 px-6 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4">
+                    <span id="status-badge" class="px-4 py-1 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px] font-black border border-yellow-500/30 uppercase">● Wallet Connected</span>
+                </div>
+                
+                <p class="label-text tracking-[8px] mb-3 opacity-60 uppercase text-xs">Withdrawable Balance</p>
+                <h3 class="text-5xl font-black orbitron text-white mb-8">$<span id="available-balance">0.00</span></h3>
+                
+                <div class="max-w-md mx-auto space-y-4">
+                    <input type="number" id="withdraw-amount" placeholder="Enter USDT Amount" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-center orbitron text-white outline-none focus:border-yellow-500 transition-all">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="handleWithdraw()" class="btn-gold-pro flex-1 py-4 rounded-xl orbitron text-xs font-bold uppercase">Withdraw Profit</button>
+                        <button onclick="handleClaimReward()" class="btn-outline-pro flex-1 py-4 rounded-xl orbitron text-xs border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 uppercase">Claim Reward</button>
+                    </div>
+                    <p class="text-[9px] text-gray-500 italic">10% Admin fee applicable. Ensure Reward Fund is sufficient.</p>
+                </div>
+            </div>
+        </div>
 
-        try {
-            // Data Fetching
-            const teamSizeRaw = await contract.userStats(address, 1);
-            const levelIdxRaw = await contract.userStats(address, 3);
-            const teamSize = parseInt(teamSizeRaw.toString());
-            const currentLevel = parseInt(levelIdxRaw.toString());
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="premium-card"><div class="inner-content p-6 flex justify-between items-center bg-black/40">
+                <div>
+                    <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Total Paid Out</p>
+                    <h3 class="text-xl font-black orbitron text-red-400">$<span id="total-withdrawn">0.00</span></h3>
+                </div>
+                <div class="p-3 bg-red-500/10 rounded-full border border-red-500/20">
+                    <i data-lucide="external-link" class="text-red-500 w-6 h-6"></i>
+                </div>
+            </div></div>
+            <div class="premium-card"><div class="inner-content p-6 flex justify-between items-center bg-black/40">
+                <div>
+                    <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Global Reward Pool</p>
+                    <h3 class="text-xl font-black orbitron text-yellow-500">$<span id="reward-fund">0.00</span></h3>
+                </div>
+                <div class="p-3 bg-yellow-500/10 rounded-full border border-yellow-500/20">
+                    <i data-lucide="shield-check" class="text-yellow-500 w-6 h-6"></i>
+                </div>
+            </div></div>
+        </div>
 
-            const directs = await contract.getLevelTeam(address, 1);
-            let legs = [];
-            for(let d of directs) {
-                const count = await contract.legTeamCount(address, d);
-                legs.push({ addr: d, count: parseInt(count.toString()) });
-            }
-            legs.sort((a,b) => b.count - a.count);
+    </main>
 
-            renderUI(currentLevel, teamSize, legs);
-        } catch(e) { console.error("Sync Error:", e); }
-    }
+    <div id="footer-placeholder"></div>
 
-    function renderUI(level, team, legs) {
-        // 1. Timeline
-        document.getElementById('reward-timeline').innerHTML = rewardTeam.map((target, i) => {
-            const done = i < level;
-            const can = !done && team >= target;
-            return `
-                <div class="flex-1 text-center relative px-2">
-                    <div class="w-10 h-10 mx-auto rounded-xl flex items-center justify-center border-2 
-                        ${done ? 'bg-green-500 border-green-400' : can ? 'bg-yellow-500 border-white node-pulse' : 'bg-white/5 border-white/10 opacity-30'}">
-                        <i data-lucide="${done ? 'check' : 'gift'}" class="w-4 h-4 text-black"></i>
-                    </div>
-                    <p class="orbitron text-[10px] mt-4 font-black">$${rewardAmt[i]}</p>
-                </div>`;
-        }).join('');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="components.js"></script>
+    <script src="web3-handler.js"></script>
+    
+    <script>
+        // Copy Referral Link
+        function copyLink() {
+            const refInput = document.getElementById('refURL');
+            if(refInput.value !== "loading") {
+                navigator.clipboard.writeText(refInput.value);
+                alert("Referral Link Copied!");
+            } else {
+                alert("Wallet not connected!");
+            }
+        }
 
-        // 2. Table
-        document.getElementById('leg-table-body').innerHTML = legs.map((l, i) => `
-            <tr>
-                <td class="py-4 font-mono text-gray-500">${l.addr.substring(0,14)}...</td>
-                <td class="py-4 text-center font-bold">${l.count}</td>
-                <td class="py-4 text-right">
-                    <span class="text-[9px] font-black ${i==0?'text-yellow-500':i==1?'text-orange-400':'text-gray-600'}">
-                        ${i==0?'POWER LEG (40%)':i==1?'2ND LEG (30%)':'OTHERS (30%)'}
-                    </span>
-                </td>
-            </tr>`).join('');
+        // Initialize Icons
+        lucide.createIcons();
 
-        // 3. Logic (40:30:30)
-        if(level < 10) {
-            const target = rewardTeam[level];
-            const caps = [target * 0.4, target * 0.3, target * 0.3];
-            const leg1 = legs[0]?.count || 0;
-            const leg2 = legs[1]?.count || 0;
-            const others = legs.slice(2).reduce((a,b) => a + b.count, 0);
-            
-            const vals = [leg1, leg2, others];
-            const labels = ['Power Leg (40%)', '2nd Leg (30%)', 'Others (30%)'];
-            
-            document.getElementById('qualification-bars').innerHTML = vals.map((v, i) => {
-                const p = Math.min((v/caps[i])*100, 100);
-                return `
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-[9px] orbitron font-bold">
-                            <span class="text-gray-500 uppercase">${labels[i]}</span>
-                            <span>${v} / ${Math.floor(caps[i])}</span>
-                        </div>
-                        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-yellow-500" style="width:${p}%"></div>
-                        </div>
-                    </div>`;
-            }).join('');
-
-            const totalQualified = Math.min(leg1, caps[0]) + Math.min(leg2, caps[1]) + Math.min(others, caps[2]);
-            const btn = document.getElementById('claim-btn');
-            if(totalQualified >= target) {
-                btn.disabled = false;
-                btn.innerText = `CLAIM $${rewardAmt[level]} REWARD`;
-                btn.className = "btn-gold-pro w-full py-4 rounded-xl orbitron text-[10px] font-black uppercase";
-            } else {
-                btn.innerText = `${Math.ceil(target - totalQualified)} TEAM NEEDED`;
-            }
-        }
-        if(window.lucide) lucide.createIcons();
-    }
-
-    async function handleClaim() {
-        try {
-            const tx = await window.contract.claimReward();
-            await tx.wait();
-            location.reload();
-        } catch(e) { alert(e.reason || e.message); }
-    }
-
-    window.addEventListener('load', () => setTimeout(syncData, 2000));
-    </script>
+        // Optional: Update status badge based on activation
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const statusBadge = document.getElementById('status-badge');
+                const mainStatus = document.getElementById('main-status-text');
+                if(mainStatus && mainStatus.innerText === "ACTIVE") {
+                    statusBadge.innerHTML = "● Active Account";
+                    statusBadge.className = "px-4 py-1 rounded-full bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/30 uppercase";
+                }
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
+iske accoding kijiye ok
