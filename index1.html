@@ -144,10 +144,11 @@
                 
                 <div class="max-w-md mx-auto space-y-4">
                     <input type="number" id="withdraw-amount" placeholder="Enter USDT Amount" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-center orbitron text-white outline-none focus:border-yellow-500 transition-all">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button onclick="handleWithdraw()" class="btn-gold-pro flex-1 py-4 rounded-xl orbitron text-xs font-bold uppercase">Withdraw Profit</button>
-                        <button onclick="handleClaimReward()" class="btn-outline-pro flex-1 py-4 rounded-xl orbitron text-xs border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 uppercase">Claim Reward</button>
-                    </div>
+                   <div class="flex flex-col sm:flex-row gap-4">
+    <button id="withdrawBtn" onclick="handleWithdraw()" class="btn-gold-pro flex-1 py-4 rounded-xl orbitron text-xs font-bold uppercase">Withdraw Profit</button>
+    
+    <button id="claimBtn" onclick="handleClaimReward()" class="btn-outline-pro flex-1 py-4 rounded-xl orbitron text-xs border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 uppercase">Claim Reward</button>
+</div>
                     <p class="text-[9px] text-gray-500 italic">10% Admin fee applicable. Ensure Reward Fund is sufficient.</p>
                 </div>
             </div>
@@ -211,4 +212,5 @@
     </script>
 </body>
 </html>
+
 
