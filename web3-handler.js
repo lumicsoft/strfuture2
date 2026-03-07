@@ -26,6 +26,7 @@ const CONTRACT_ABI = [
     
     // YEH LINE ADD KI HAI (Mapping call for Leg Count)
     "function legTeamCount(address user, address partner) view returns (uint256)",
+    "function syncAllPools() external",
     
     // NEW MATRIX SYNC FUNCTIONS
     "function getMagicPoolCounts() external view returns (uint256[6])",
@@ -222,7 +223,48 @@ window.handleClaimReward = async function() {
         claimBtn.innerText = originalText;
     }
 };
+window.handleSyncMatrix = async function() {
+    const syncBtn = document.getElementById('sync-btn'); // Maan lijiye button ID sync-btn hai
+    const originalText = syncBtn ? syncBtn.innerText : "SYNC MATRIX";
 
+    try {
+        if (!window.contract) return alert("Wallet not connected!");
+
+        if (syncBtn) {
+            syncBtn.disabled = true;
+            syncBtn.innerText = "SYNCING...";
+        }
+
+        console.log("Starting Matrix Sync...");
+
+        // Contract ka syncAllPools function call ho raha hai
+        const tx = await window.contract.syncAllPools({ 
+            gasLimit: 500000 // Thoda extra gas kyunki 8-10 loops check hote hain
+        });
+
+        console.log("Transaction Hash:", tx.hash);
+        
+        if (syncBtn) syncBtn.innerText = "WAITING...";
+        
+        const receipt = await tx.wait();
+
+        if (receipt.status === 1) {
+            alert("Matrix Synced Successfully! Pool positions updated.");
+            // Data refresh karne ke liye update functions call karein
+            if (typeof updateLiveMatrixStatus === "function") updateLiveMatrixStatus();
+            if (typeof fetchAllData === "function") fetchAllData(window.userAddress);
+        }
+
+    } catch (err) {
+        console.error("Sync Error:", err);
+        alert("Sync Failed: " + (err.reason || "Transaction cancelled or Gas error"));
+    } finally {
+        if (syncBtn) {
+            syncBtn.disabled = false;
+            syncBtn.innerText = originalText;
+        }
+    }
+};
 window.handleLogin = async function() {
     try {
         if (!window.ethereum) return alert("Wallet not detected!");
@@ -533,6 +575,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
