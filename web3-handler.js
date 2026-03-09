@@ -1,7 +1,7 @@
 let provider, signer, contract, userAddress;
 
 // --- CONFIGURATION ---
-const CONTRACT_ADDRESS = "0x46Bf614435228fC166D18eC3Ca6121B53329D0Da"; 
+const CONTRACT_ADDRESS = "0x382BA23a163e2D3DacE8084Fb1821da7246Ec93d"; 
 const USDT_TOKEN_ADDRESS = "0x3b66b1e08f55af26c8ea14a73da64b6bc8d799de"; // BSC USDT
 const TESTNET_CHAIN_ID = 97; 
 const REGISTRATION_FEE = "15";
@@ -599,6 +599,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
