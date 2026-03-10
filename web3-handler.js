@@ -1,9 +1,9 @@
 let provider, signer, contract, userAddress;
 
 // --- CONFIGURATION ---
-const CONTRACT_ADDRESS = "0xCD6304305f4620eCEC7F32070d0dBd35DF6DF9Ff"; 
-const USDT_TOKEN_ADDRESS = "0x3b66b1e08f55af26c8ea14a73da64b6bc8d799de"; // BSC USDT
-const TESTNET_CHAIN_ID = 97; 
+const CONTRACT_ADDRESS = "0xF6e9De60DA4D54C22657f113e48CE15F4B0630a0"; 
+const USDT_TOKEN_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT
+const MAINNET_CHAIN_ID = 56; 
 const REGISTRATION_FEE = "15";
 
 
@@ -90,56 +90,72 @@ window.handleRegister = async function() {
     }
 
     try {
+        // 1. Network Check (BSC Mainnet: 56)
         const network = await provider.getNetwork();
-        if (network.chainId !== 97) {
+        if (network.chainId !== 56) {
             await window.ethereum.request({ 
                 method: 'wallet_switchEthereumChain', 
-                params: [{ chainId: '0x61' }] 
+                params: [{ chainId: '0x38' }] 
             });
         }
 
         if(regBtn) { regBtn.disabled = true; regBtn.innerText = "CHECKING USDT..."; }
 
+        // 2. USDT Contract Setup
         const usdtContract = new ethers.Contract(USDT_TOKEN_ADDRESS, ERC20_ABI, signer);
+        
+        // REGISTRATION_FEE agar "15" hai, toh ye use 15 * 10^18 mein convert karega
         const feeWei = ethers.utils.parseUnits(REGISTRATION_FEE, 18);
         const userAddr = await signer.getAddress();
+        
+        // Check current allowance
         const allowance = await usdtContract.allowance(userAddr, CONTRACT_ADDRESS);
         
+        // 3. FIXED APPROVAL LOGIC ($15 ONLY)
         if (allowance.lt(feeWei)) {
-            if(regBtn) regBtn.innerText = "APPROVING USDT...";
-            const appTx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.constants.MaxUint256);
+            if(regBtn) regBtn.innerText = "APPROVING $15 USDT...";
+            
+            // Yahan MaxUint256 ki jagah feeWei (15 USDT) pass kiya hai
+            const appTx = await usdtContract.approve(CONTRACT_ADDRESS, feeWei);
             await appTx.wait();
+            if(regBtn) regBtn.innerText = "APPROVAL DONE...";
         }
 
-        if(regBtn) regBtn.innerText = "ESTIMATING...";
+        if(regBtn) regBtn.innerText = "ESTIMATING GAS...";
 
-        // --- DYNAMIC GAS LIMIT START ---
+        // 4. DYNAMIC GAS LIMIT
         let gasLimit;
         try {
-            // Blockchain se puchte hain kitni gas lagegi
             const estimate = await contract.estimateGas.register(referrer);
-            // 20% extra buffer add kar rahe hain safety ke liye
+            // 20% extra buffer safety ke liye
             gasLimit = estimate.mul(120).div(100);
         } catch (e) {
             console.log("Gas estimation failed, using fallback");
-            // Agar estimation fail ho jaye to high limit (1 Million) set kar dete hain
-            gasLimit = ethers.BigNumber.from("1000000");
+            gasLimit = ethers.BigNumber.from("1000000"); // 1 Million fallback
         }
 
-        if(regBtn) regBtn.innerText = "CONFIRMING...";
+        if(regBtn) regBtn.innerText = "CONFIRMING TRANSACTION...";
         
-        // Ab yahan fixed 800000 ki jagah hamara calculated gasLimit jayega
+        // 5. FINAL REGISTRATION
         const tx = await contract.register(referrer, { gasLimit });
-        // --- DYNAMIC GAS LIMIT END ---
 
         await tx.wait();
 
         alert("Account Activated Successfully!");
-        window.location.href = "index1.html";
+        window.location.href = "index1.php";
+
     } catch (err) {
         console.error("Reg Error:", err);
-        alert("Registration Error: " + (err.reason || err.message));
-        if(regBtn) { regBtn.disabled = false; regBtn.innerText = "REGISTER NOW"; }
+        // Error handling for user rejection or chain issues
+        let errorMsg = err.reason || err.message;
+        if(err.code === 4001) errorMsg = "Transaction rejected by user.";
+        
+        alert("Registration Error: " + errorMsg);
+        
+        if(regBtn) { 
+            regBtn.disabled = false; 
+            regBtn.innerText = "REGISTER NOW"; 
+        }
     }
 };
 
@@ -298,10 +314,10 @@ window.handleLogin = async function() {
         if (registered) {
             localStorage.setItem('userAddress', userAddress);
             localStorage.removeItem('manualLogout');
-            window.location.href = "index1.html";
+            window.location.href = "index1.php";
         } else {
             alert("Not registered!");
-            window.location.href = "register.html";
+            window.location.href = "register.php";
         }
     } catch (err) { alert("Login failed"); }
 };
@@ -310,7 +326,7 @@ window.handleLogout = function() {
     if (confirm("Disconnect and Logout?")) {
         localStorage.clear(); 
         localStorage.setItem('manualLogout', 'true');
-        window.location.href = "index.html"; 
+        window.location.href = "index.php"; 
     }
 }
 
@@ -326,26 +342,26 @@ async function setupApp(address) {
         const path = window.location.pathname;
         window.userData = { isRegistered };
 
-        if (!isRegistered && !path.includes('register.html') && !path.includes('login.html')) {
-            window.location.href = "register.html";
+        if (!isRegistered && !path.includes('register.php') && !path.includes('login.php')) {
+            window.location.href = "register.php";
             return;
         }
         
         updateNavbar(address);
         
         // --- Page Specific Data Loading ---
-        if (path.includes('index1.html')) {
+        if (path.includes('index1.php')) {
             setTimeout(() => fetchAllData(address), 300);
             setTimeout(() => updateLiveMatrixStatus(), 500); 
         }
-        if (path.includes('history.html')) {
+        if (path.includes('history.php')) {
             // Yahan 500ms ka delay contract initialization ke liye safe hai
             setTimeout(() => fetchUserHistory(address, 'all'), 500);
         }
-        if (path.includes('leadership.html')) {
+        if (path.includes('leadership.php')) {
             setTimeout(() => fetchLeadershipData(address), 300);
         }
-        if (path.includes('team.html')) {
+        if (path.includes('team.php')) {
             setTimeout(() => fetchLevelTeam(address), 300);
         }
     } catch (err) { console.error("Setup Error", err); }
@@ -390,7 +406,7 @@ async function fetchAllData(address) {
         updateText('income-gt3', format(advanced[2]));
         updateText('income-reward', format(advanced[3]));
 
-        const registerPath = window.location.pathname.includes('index1.html') ? window.location.pathname.replace('index1.html', 'register.html') : '/register.html';
+        const registerPath = window.location.pathname.includes('index1.php') ? window.location.pathname.replace('index1.php', 'register.php') : '/register.php';
         const baseUrl = window.location.origin + registerPath;
         const refField = document.getElementById('refURL');
         if(refField) refField.value = `${baseUrl}?ref=${address}`;
@@ -599,6 +615,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
