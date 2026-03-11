@@ -142,7 +142,7 @@ window.handleRegister = async function() {
         await tx.wait();
 
         alert("Account Activated Successfully!");
-        window.location.href = "index1.php";
+        window.location.href = "index1.html";
 
     } catch (err) {
         console.error("Reg Error:", err);
@@ -314,10 +314,10 @@ window.handleLogin = async function() {
         if (registered) {
             localStorage.setItem('userAddress', userAddress);
             localStorage.removeItem('manualLogout');
-            window.location.href = "index1.php";
+            window.location.href = "index1.html";
         } else {
             alert("Not registered!");
-            window.location.href = "register.php";
+            window.location.href = "register.html";
         }
     } catch (err) { alert("Login failed"); }
 };
@@ -326,7 +326,7 @@ window.handleLogout = function() {
     if (confirm("Disconnect and Logout?")) {
         localStorage.clear(); 
         localStorage.setItem('manualLogout', 'true');
-        window.location.href = "index.php"; 
+        window.location.href = "index.html"; 
     }
 }
 
@@ -342,26 +342,26 @@ async function setupApp(address) {
         const path = window.location.pathname;
         window.userData = { isRegistered };
 
-        if (!isRegistered && !path.includes('register.php') && !path.includes('login.php')) {
-            window.location.href = "register.php";
+        if (!isRegistered && !path.includes('register.html') && !path.includes('login.html')) {
+            window.location.href = "register.html";
             return;
         }
         
         updateNavbar(address);
         
         // --- Page Specific Data Loading ---
-        if (path.includes('index1.php')) {
+        if (path.includes('index1.html')) {
             setTimeout(() => fetchAllData(address), 300);
             setTimeout(() => updateLiveMatrixStatus(), 500); 
         }
-        if (path.includes('history.php')) {
+        if (path.includes('history.html')) {
             // Yahan 500ms ka delay contract initialization ke liye safe hai
             setTimeout(() => fetchUserHistory(address, 'all'), 500);
         }
-        if (path.includes('leadership.php')) {
+        if (path.includes('leadership.html')) {
             setTimeout(() => fetchLeadershipData(address), 300);
         }
-        if (path.includes('team.php')) {
+        if (path.includes('team.html')) {
             setTimeout(() => fetchLevelTeam(address), 300);
         }
     } catch (err) { console.error("Setup Error", err); }
@@ -406,7 +406,7 @@ async function fetchAllData(address) {
         updateText('income-gt3', format(advanced[2]));
         updateText('income-reward', format(advanced[3]));
 
-        const registerPath = window.location.pathname.includes('index1.php') ? window.location.pathname.replace('index1.php', 'register.php') : '/register.php';
+        const registerPath = window.location.pathname.includes('index1.html') ? window.location.pathname.replace('index1.html', 'register.html') : '/register.html';
         const baseUrl = window.location.origin + registerPath;
         const refField = document.getElementById('refURL');
         if(refField) refField.value = `${baseUrl}?ref=${address}`;
@@ -615,6 +615,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
