@@ -1,9 +1,9 @@
 let provider, signer, contract, userAddress;
 
 // --- CONFIGURATION ---
-const CONTRACT_ADDRESS = "0xF6e9De60DA4D54C22657f113e48CE15F4B0630a0"; 
-const USDT_TOKEN_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT
-const MAINNET_CHAIN_ID = 56; 
+const CONTRACT_ADDRESS = "0x6022e685B9E9EEf138DA79AE13778077C0B85bD8"; 
+const USDT_TOKEN_ADDRESS = "0x3B66b1E08F55AF26c8eA14a73dA64b6bC8D799dE"; // BSC USDT
+const TESTNET_CHAIN_ID = 97; 
 const REGISTRATION_FEE = "15";
 
 
@@ -90,12 +90,12 @@ window.handleRegister = async function() {
     }
 
     try {
-        // 1. Network Check (BSC Mainnet: 56)
+        // 1. Network Check (BSC TESTNET: 56)
         const network = await provider.getNetwork();
         if (network.chainId !== 56) {
             await window.ethereum.request({ 
                 method: 'wallet_switchEthereumChain', 
-                params: [{ chainId: '0x38' }] 
+                params: [{ chainId: '0x61' }] 
             });
         }
 
@@ -615,6 +615,7 @@ function updateNavbar(addr) {
 }
 
 window.addEventListener('load', init);
+
 
 
 
